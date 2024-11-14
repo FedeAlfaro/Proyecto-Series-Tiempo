@@ -1,8 +1,0 @@
-"0","# Asegúrate de que 'date_time' esté en formato POSIXct"
-"0","trafico <- trafico %>%"
-"0","  mutate(date_time = as.POSIXct(date_time, format = ""%Y-%m-%d %H:%M:%S""))"
-"0",""
-"0","# Filtrar los outliers correctamente"
-"0","trafico_clean <- trafico %>%"
-"0","  filter(between(rain_1h, quantile(rain_1h, 0.00001), quantile(rain_1h, 0.99999))) %>%"
-"0","  filter(between(temp, quantile(temp, 0.001), quantile(temp, 0.999)))"

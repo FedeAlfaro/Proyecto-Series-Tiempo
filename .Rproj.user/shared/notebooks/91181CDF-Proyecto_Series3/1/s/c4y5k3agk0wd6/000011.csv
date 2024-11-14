@@ -1,3 +1,0 @@
-"0","# Error de imputación"
-"0","nrmse <- MF$OOBerror[1]  # Para variables numéricas"
-"0","pfc <- MF$OOBerror[2]    # Para variables categóricas"

@@ -1,2 +1,0 @@
-"0","completed_data <- missForest(data)$ximp"
-"0","completed_data <- cbind(date_time = trafico_jul_2015$date_time, completed_data)"

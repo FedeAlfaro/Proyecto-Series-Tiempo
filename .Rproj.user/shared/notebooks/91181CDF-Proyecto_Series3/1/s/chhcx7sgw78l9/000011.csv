@@ -1,6 +1,0 @@
-"0","horas_faltantes_legibles2 <- data.frame(fecha = horas_faltantes_legibles) %>%"
-"0","  filter(year(fecha) > 2014) %>% #  filter(horas_faltantes_legibles > as.Date(""2016-05-31""))"
-"0","  mutate("
-"0","    ano = year(fecha),"
-"0","    mes = month(fecha, label = TRUE, abbr = TRUE)"
-"0","  )"

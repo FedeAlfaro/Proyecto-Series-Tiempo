@@ -1,5 +1,0 @@
-"0","ggplot(trafico, aes(x = traffic_volume)) +"
-"0","  geom_histogram(bins = 30, fill = ""blue"", color = ""black"", alpha = 0.7) +"
-"0","  labs(title = ""Distribución del volumen de tráfico"","
-"0","       x = ""Volumen de tráfico"","
-"0","       y = ""Frecuencia"")"
