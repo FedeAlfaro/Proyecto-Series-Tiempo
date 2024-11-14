@@ -1,0 +1,8 @@
+"0","trafico %>%"
+"0","  group_by(weather_main) %>%"
+"0","  summarise(avg_traffic = mean(traffic_volume, na.rm = TRUE)) %>%"
+"0","  ggplot(aes(x = weather_main, y = avg_traffic, fill = weather_main)) +"
+"0","  geom_bar(stat = ""identity"") +"
+"0","  labs(title = ""Volumen de tráfico promedio según el clima"","
+"0","       x = ""Clima"","
+"0","       y = ""Volumen de tráfico promedio"") "

@@ -1,0 +1,57 @@
+"0","library(tidyverse)"
+"1","── [1mAttaching core tidyverse packages[22m ──────────────────────────────────────────────────────────────────────────────────── tidyverse 2.0.0 ──
+[32m✔[39m [34mforcats  [39m 1.0.0     [32m✔[39m [34mpurrr    [39m 1.0.2
+[32m✔[39m [34mggplot2  [39m 3.5.0     [32m✔[39m [34mstringr  [39m 1.5.1
+[32m✔[39m [34mlubridate[39m 1.9.3     [32m✔[39m [34mtibble   [39m 3.2.1
+"
+"1","── [1mConflicts[22m ────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+[31m✖[39m [34mdplyr[39m::[32mfilter()[39m masks [34mstats[39m::filter()
+[31m✖[39m [34mdplyr[39m::[32mlag()[39m    masks [34mstats[39m::lag()
+[36mℹ[39m Use the ]8;;http://conflicted.r-lib.org/conflicted package]8;; to force all conflicts to become errors
+"
+"0","library(ggplot2)"
+"0","library(fpp3)"
+"2","Registered S3 method overwritten by 'tsibble':
+  method               from 
+  as_tibble.grouped_df dplyr
+"
+"2","[37m── [1mAttaching packages[22m ──────────────────────────────────────────────────────────────────────────────────────────────────────── fpp3 1.0.1 ──[39m
+"
+"2","[37m[32m✔[37m [34mtsibble    [37m 1.1.5     [32m✔[37m [34mfeasts     [37m 0.4.0
+[32m✔[37m [34mtsibbledata[37m 0.4.1     [32m✔[37m [34mfable      [37m 0.3.4[39m
+"
+"2","[37m── [1mConflicts[22m ───────────────────────────────────────────────────────────────────────────────────────────────────────────── fpp3_conflicts ──
+[31m✖[37m [34mlubridate[37m::[32mdate()[37m    masks [34mbase[37m::date()
+[31m✖[37m [34mdplyr[37m::[32mfilter()[37m      masks [34mstats[37m::filter()
+[31m✖[37m [34mtsibble[37m::[32mintersect()[37m masks [34mbase[37m::intersect()
+[31m✖[37m [34mtsibble[37m::[32minterval()[37m  masks [34mlubridate[37m::interval()
+[31m✖[37m [34mdplyr[37m::[32mlag()[37m         masks [34mstats[37m::lag()
+[31m✖[37m [34mtsibble[37m::[32msetdiff()[37m   masks [34mbase[37m::setdiff()
+[31m✖[37m [34mtsibble[37m::[32munion()[37m     masks [34mbase[37m::union()[39m
+"
+"0","library(astsa)"
+"0","library(timetk)"
+"2","Registered S3 method overwritten by 'data.table':
+  method           from
+  print.data.table     
+"
+"0","library(skimr)"
+"2","Registered S3 methods overwritten by 'htmltools':
+  method               from         
+  print.html           tools:rstudio
+  print.shiny.tag      tools:rstudio
+  print.shiny.tag.list tools:rstudio
+"
+"0","library(corrplot)"
+"2","corrplot 0.92 loaded
+"
+"0","library(gridExtra)"
+"2","
+Attaching package: ‘gridExtra’
+
+"
+"2","The following object is masked from ‘package:dplyr’:
+
+    combine
+
+"

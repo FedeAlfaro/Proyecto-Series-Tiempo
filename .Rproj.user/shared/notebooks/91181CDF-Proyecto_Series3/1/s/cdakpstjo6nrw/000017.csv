@@ -1,0 +1,15 @@
+"0","calcular_moda <- function(x) {"
+"0","  ux <- unique(x)"
+"0","  ux[which.max(tabulate(match(x, ux)))]"
+"0","}"
+"0",""
+"0","# Calcular la moda en cada conjunto imputado"
+"0","analisis <- with(data_mice, sapply(weather_main, calcular_moda))"
+"0",""
+"0","# Combinar los resultados para obtener la moda predominante en los conjuntos imputados"
+"0","resultados_combinados <- pool(analisis)"
+"2","Warning in get.dfcom(object, dfcom) :"
+"2"," Infinite sample size assumed.
+"
+"2","Error: No tidy method for objects of class factor
+"

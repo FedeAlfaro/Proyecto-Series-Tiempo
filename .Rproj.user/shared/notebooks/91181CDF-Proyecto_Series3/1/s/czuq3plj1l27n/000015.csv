@@ -1,0 +1,13 @@
+"0","ggplot(trafico, aes(x = rain_1h)) +"
+"0","  geom_histogram(bins = 30, fill = ""green"", color = ""black"", alpha = 0.7) +"
+"0","  labs(title = ""Distribución de la precipitación"","
+"0","       x = ""Precipitación (mm)"","
+"0","       y = ""Frecuencia"")  +"
+"0","  scale_x_continuous(limits = c(0, 60)) + "
+"0","  scale_y_continuous(limits = c(0, 500))"
+"2","Warning:"
+"2"," [38;5;255mRemoved 1 row containing non-finite outside the scale range (`stat_bin()`).[39m
+"
+"2","Warning:"
+"2"," [38;5;255mRemoved 2 rows containing missing values or values outside the scale range (`geom_bar()`).[39m
+"

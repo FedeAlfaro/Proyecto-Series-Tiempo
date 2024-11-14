@@ -1,0 +1,5 @@
+"0","# Usar separate para dividir la columna"
+"0","#trafico <- trafico %>%"
+"0","#  separate(date_time, into = c(""day"", ""time""), sep = "" "")"
+"0",""
+"0","#trafico"

@@ -1,0 +1,7 @@
+"0","trafico_filtrado %>%"
+"0","  ggplot(aes(x = rain_1h, y = traffic_volume)) +"
+"0","  geom_point(alpha = 0.3) +"
+"0","  labs(title = ""Volumen de tráfico vs Precipitación"","
+"0","       x = ""Precipitación (mm)"", "
+"0","       y = ""Volumen de tráfico"") +"
+"0","  theme_minimal()"

@@ -1,0 +1,5 @@
+"0","resumen <- horas_faltantes_legibles2 %>%"
+"0","  group_by(ano, mes) %>%"
+"0","  summarise(conteo = n())"
+"1","[38;5;255m`summarise()` has grouped output by 'ano'. You can override using the `.groups` argument.[39m
+"

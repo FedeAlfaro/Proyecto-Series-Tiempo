@@ -1,0 +1,8 @@
+"0","trafico %>%"
+"0","  mutate(temp_interval = cut(temp, breaks = seq(min(temp), max(temp), by = 5), include.lowest = TRUE)) %>%"
+"0","  ggplot(aes(x = temp_interval, y = traffic_volume, fill = temp_interval)) +"
+"0","  geom_boxplot() +"
+"0","  labs(title = ""Distribución del volumen de tráfico por intervalos de temperatura"","
+"0","       x = ""Intervalo de temperatura (K)"","
+"0","       y = ""Volumen de tráfico"") +"
+"0","  theme_minimal() "

@@ -1,0 +1,8 @@
+"0","trafico %>%"
+"0","  mutate(snow_interval = cut(snow_1h, breaks = 5, include.lowest = TRUE)) %>%"
+"0","  ggplot(aes(x = snow_interval, y = traffic_volume, fill = snow_interval)) +"
+"0","  geom_boxplot() +"
+"0","  labs(title = ""Distribución del volumen de tráfico por intervalos de nieve"","
+"0","       x = ""Intervalo de nieve (mm)"","
+"0","       y = ""Volumen de tráfico"") +"
+"0","  theme_minimal()"

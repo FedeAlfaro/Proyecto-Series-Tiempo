@@ -1,0 +1,799 @@
+---
+title: "**Tráfico Minnesota**"
+author:
+- Federico Alfaro Chaverri B80212
+- María José Bolaños Gutierrez C01218
+- Albert Gutiérrez Castro B93612
+- Sofía Sequeira Ugalde B97458
+- Jimena Chacón Chavarría B81999
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: spacelab
+    highlight: zenburn
+toc-title: "Tabla de Contenido"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(readr)
+library(dplyr)
+library(tidyr)
+```
+
+```{r, warning=FALSE, message=FALSE}
+library(tidyverse)
+library(ggplot2)
+library(fpp3)
+library(astsa)
+library(timetk)
+library(skimr)
+library(corrplot)
+library(gridExtra)
+```
+
+```{r}
+trafico <- read.csv("Metro_Interstate_Traffic_Volume.csv",
+                              stringsAsFactors = TRUE, 
+                              colClasses = c("factor",
+                                             "numeric",  # temp (double o large)
+                                             "numeric",  # rain_1h (double o large)
+                                             "numeric",  # snow_1h (double o large)
+                                             "integer",  # clouds_all (int)
+                                             "factor",   # weather_main
+                                             "factor",   # weather_description
+                                             "character", # date_time (y-m-d)
+                                             "numeric" # traffic_volume
+                                             ))
+trafico
+```
+
+```{r}
+trafico[1,]
+```
+
+```{r}
+trafico[dim(trafico)[1],]
+```
+
+```{r}
+# Usar separate para dividir la columna
+#trafico <- trafico %>%
+#  separate(date_time, into = c("day", "time"), sep = " ")
+
+#trafico
+```
+
+
+
+```{r}
+
+trafico <- trafico[-which(duplicated(trafico$date_time)), ]
+
+```
+
+
+
+
+```{r}
+trafico
+```
+```{r}
+summary(trafico)
+```
+
+```{r}
+skim(trafico)
+```
+
+```{r}
+# Filtrar para eliminar outliers en la precipitación 
+trafico_filtrado <- trafico %>%
+  filter(rain_1h <= 500)
+
+# Crear una tabla con las estadísticas descriptivas para tráfico
+traffic_summary <- trafico_filtrado %>%
+  summarise(
+    Variable = "Tráfico",
+    Minimo = min(traffic_volume, na.rm = TRUE),
+    Mediana = median(traffic_volume, na.rm = TRUE),
+    Maximo = max(traffic_volume, na.rm = TRUE),
+    Promedio = mean(traffic_volume, na.rm = TRUE),
+    Varianza = var(traffic_volume, na.rm = TRUE),
+    Desviacion_Estandar = sd(traffic_volume, na.rm = TRUE)
+  )
+
+# Crear una tabla con las estadísticas descriptivas para rain_1h
+rain_summary <- trafico_filtrado %>%
+  summarise(
+    Variable = "Precipitación (rain_1h)",
+    Minimo = min(rain_1h, na.rm = TRUE),
+    Mediana = median(rain_1h, na.rm = TRUE),
+    Maximo = max(rain_1h, na.rm = TRUE),
+    Promedio = mean(rain_1h, na.rm = TRUE),
+    Varianza = var(rain_1h, na.rm = TRUE),
+    Desviacion_Estandar = sd(rain_1h, na.rm = TRUE)
+  )
+
+# Crear una tabla con las estadísticas descriptivas para temp
+temp_summary <- trafico_filtrado %>%
+  summarise(
+    Variable = "Temperatura",
+    Minimo = min(temp, na.rm = TRUE),
+    Mediana = median(temp, na.rm = TRUE),
+    Maximo = max(temp, na.rm = TRUE),
+    Promedio = mean(temp, na.rm = TRUE),
+    Varianza = var(temp, na.rm = TRUE),
+    Desviacion_Estandar = sd(temp, na.rm = TRUE)
+  )
+
+# Crear una tabla con las estadísticas descriptivas para snow_1h
+snow_summary <- trafico_filtrado %>%
+  summarise(
+    Variable = "Nieve (snow_1h)",
+    Minimo = min(snow_1h, na.rm = TRUE),
+    Mediana = median(snow_1h, na.rm = TRUE),
+    Maximo = max(snow_1h, na.rm = TRUE),
+    Promedio = mean(snow_1h, na.rm = TRUE),
+    Varianza = var(snow_1h, na.rm = TRUE),
+    Desviacion_Estandar = sd(snow_1h, na.rm = TRUE)
+  )
+
+# Combinar los resúmenes en una sola tabla
+summary_table <- bind_rows(traffic_summary, rain_summary, temp_summary, snow_summary)
+
+# Mostrar la tabla
+print(summary_table)
+
+```
+
+```{r}
+trafico1 <- trafico %>%
+  mutate(hour = as.numeric(format(as.POSIXct(date_time, format = "%Y-%m-%d %H:%M:%S"), "%H")))
+
+ggplot(trafico1, aes(x = hour, y = traffic_volume)) + 
+  geom_line(stat = "summary", fun = mean) + 
+  labs(title = "Promedio del volumen de tráfico por hora", 
+       x = "Hora del día", 
+       y = "Volumen de tráfico promedio") +
+  scale_x_continuous(breaks = seq(0, 23, by = 1))
+```
+
+Distribuciones de las variables:
+
+```{r}
+ggplot(trafico, aes(x = weather_main)) +
+  geom_bar(fill = "yellow", color = "black", alpha = 0.7) +
+  labs(title = "Distribución del clima",
+       x = "Clima",
+       y = "Frecuencia")
+```
+
+```{r}
+ggplot(trafico, aes(x = traffic_volume)) +
+  geom_histogram(bins = 30, fill = "blue", color = "black", alpha = 0.7) +
+  labs(title = "Distribución del volumen de tráfico",
+       x = "Volumen de tráfico",
+       y = "Frecuencia")
+```
+
+```{r}
+ggplot(trafico_filtrado, aes(x = temp)) +
+  geom_histogram(bins = 30, fill = "red", color = "black", alpha = 0.7) +
+  labs(title = "Distribución de la temperatura",
+       x = "Temperatura (K)",
+       y = "Frecuencia")
+```
+
+```{r}
+ggplot(trafico, aes(x = rain_1h)) +
+  geom_histogram(bins = 30, fill = "green", color = "black", alpha = 0.7) +
+  labs(title = "Distribución de la precipitación",
+       x = "Precipitación (mm)",
+       y = "Frecuencia")  +
+  scale_x_continuous(limits = c(0, 60)) + 
+  scale_y_continuous(limits = c(0, 500))
+```
+
+```{r}
+ggplot(trafico_filtrado, aes(x = snow_1h)) +
+  geom_histogram(bins = 30, fill = "purple", color = "black", alpha = 0.7) +
+  labs(title = "Distribución de la nieve",
+       x = "Nieve (mm)",
+       y = "Frecuencia") +
+  scale_x_continuous(limits = c(0, 1)) + 
+  scale_y_continuous(limits = c(0, 25))
+```
+
+```{r}
+ggplot(trafico, aes(x = clouds_all)) +
+  geom_histogram(bins = 30, fill = "orange", color = "black", alpha = 0.7) +
+  labs(title = "Distribución de la cobertura de nubes",
+       x = "Cobertura de nubes (%)",
+       y = "Frecuencia")
+```
+
+
+```{r}
+g2<-trafico %>%
+  group_by(holiday) %>%
+  summarise(avg_traffic = mean(traffic_volume, na.rm = TRUE)) %>%
+  ggplot(aes(x = holiday, y = avg_traffic, fill = holiday)) +
+  geom_bar(stat = "identity") +
+  labs(title = "",
+       x = "Días Festivos",
+       y = "Volumen de tráfico promedio") +  theme_minimal() + 
+  theme(axis.text.x = element_blank(),  # Eliminar las etiquetas del eje x
+        axis.ticks.x = element_blank())  # Quitar las marcas del eje x
+
+ggsave("volumen_festivos.pdf", plot = g2, width = 8, height = 6)
+```
+
+```{r}
+numeric_vars <- trafico_filtrado %>%
+  select(temp, rain_1h, snow_1h, clouds_all, traffic_volume)
+
+# Calcular la matriz de correlación
+cor_matrix <- cor(numeric_vars)
+cor_matrix
+```
+
+```{r}
+# Extraer las correlaciones de traffic_volume con las otras variables
+traffic_corr <- cor_matrix[,"traffic_volume"]
+traffic_corr
+```
+
+```{r}
+corrplot(cor_matrix, method = 'number')
+```
+
+```{r}
+trafico %>%
+  group_by(weather_main) %>%
+  summarise(avg_traffic = mean(traffic_volume, na.rm = TRUE)) %>%
+  ggplot(aes(x = weather_main, y = avg_traffic, fill = weather_main)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Volumen de tráfico promedio según el clima",
+       x = "Clima",
+       y = "Volumen de tráfico promedio") 
+```
+
+```{r}
+trafico_filtrado %>%
+  ggplot(aes(x = rain_1h, y = traffic_volume)) +
+  geom_point(alpha = 0.3) +
+  labs(title = "Volumen de tráfico vs Precipitación",
+       x = "Precipitación (mm)", 
+       y = "Volumen de tráfico") +
+  theme_minimal()
+```
+
+```{r}
+trafico %>%
+  mutate(temp_interval = cut(temp, breaks = seq(min(temp), max(temp), by = 5), include.lowest = TRUE)) %>%
+  ggplot(aes(x = temp_interval, y = traffic_volume, fill = temp_interval)) +
+  geom_boxplot() +
+  labs(title = "Distribución del volumen de tráfico por intervalos de temperatura",
+       x = "Intervalo de temperatura (K)",
+       y = "Volumen de tráfico") +
+  theme_minimal() 
+```
+
+```{r}
+trafico %>%
+  mutate(rain_interval = cut(rain_1h, breaks = seq(min(rain_1h), max(rain_1h), by = 5), include.lowest = TRUE)) %>%
+  ggplot(aes(x = rain_interval, y = traffic_volume, fill = rain_interval)) +
+  geom_boxplot() +
+  labs(title = "Distribución del volumen de tráfico por intervalos de precipitación",
+       x = "Intervalo de precipitación (mm)",
+       y = "Volumen de tráfico") +
+  theme_minimal() 
+```
+
+```{r}
+trafico %>%
+  mutate(snow_interval = cut(snow_1h, breaks = 5, include.lowest = TRUE)) %>%
+  ggplot(aes(x = snow_interval, y = traffic_volume, fill = snow_interval)) +
+  geom_boxplot() +
+  labs(title = "Distribución del volumen de tráfico por intervalos de nieve",
+       x = "Intervalo de nieve (mm)",
+       y = "Volumen de tráfico") +
+  theme_minimal()
+```
+
+```{r}
+trafico %>%
+  mutate(cloud_interval = cut(clouds_all, breaks = seq(0, 100, by = 20), include.lowest = TRUE)) %>%
+  ggplot(aes(x = cloud_interval, y = traffic_volume, fill = cloud_interval)) +
+  geom_boxplot() +
+  labs(title = "Distribución del volumen de tráfico por intervalos de cobertura de nubes",
+       x = "Cobertura de nubes (%)",
+       y = "Volumen de tráfico") +
+  theme_minimal() 
+```
+
+```{r}
+# Asegúrate de que 'date_time' esté en formato POSIXct
+trafico <- trafico %>%
+  mutate(date_time = as.POSIXct(date_time, format = "%Y-%m-%d %H:%M:%S"))
+
+# Filtrar los outliers correctamente
+trafico_clean <- trafico %>%
+  filter(between(rain_1h, quantile(rain_1h, 0.00001), quantile(rain_1h, 0.99999))) %>%
+  filter(between(temp, quantile(temp, 0.001), quantile(temp, 0.999)))
+
+# Datos originales
+p1 <- ggplot(trafico, aes(x = date_time, y = rain_1h, group = 1)) +
+  geom_line() +
+  labs(title = "rain_1h con outliers",
+       x = "Fecha",
+       y = "rain_1h") +
+  theme_minimal()
+
+p2 <- ggplot(trafico, aes(x = date_time, y = temp, group = 1)) +
+  geom_line() +
+  labs(title = "temp con outliers",
+       x = "Fecha",
+       y = "Temp") +
+  theme_minimal()
+
+# Datos filtrados
+p3 <- ggplot(trafico_filtrado, aes(x = date_time, y = rain_1h, group = 1)) +
+  geom_line() +
+  labs(title = "rain_1h sin outliers",
+       x = "Fecha",
+       y = "rain_1h") +
+  theme_minimal()
+
+p4 <- ggplot(trafico_filtrado, aes(x = date_time, y = temp, group = 1)) +
+  geom_line() +
+  labs(title = "temp sin outliers",
+       x = "Fecha",
+       y = "Temp") +
+  theme_minimal()
+
+# Combinar los gráficos
+grid.arrange(p1, p2, p3, p4, ncol = 2, nrow = 2)
+```
+
+```{r}
+summary(trafico_filtrado)
+```
+
+```{r}
+trafico1 <- trafico %>%
+  mutate(hour = as.numeric(format(as.POSIXct(date_time, format = "%Y-%m-%d %H:%M:%S"), "%H")))
+
+# Crear el gráfico y asignarlo a una variable
+p <- ggplot(trafico1, aes(x = hour, y = traffic_volume)) + 
+  geom_line(stat = "summary", fun = mean, color = "steelblue", linewidth = 1.2) + 
+  geom_point(stat = "summary", fun = mean, color = "darkred", size = 2) +
+  labs(title = "", 
+       x = "Hora del Día", 
+       y = "Volumen de Tráfico Promedio") + 
+  scale_x_continuous(breaks = seq(0, 23, by = 1)) +
+   
+  
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),
+    axis.title = element_text(size = 14),
+    axis.text = element_text(size = 12),
+    panel.grid.major = element_line(color = "grey80"),
+    panel.grid.minor = element_blank()
+  )
+p
+# Guardar el gráfico como PDF
+ggsave("promedio_volumen_trafico.pdf", plot = p, width =11, height = 6)
+
+```
+
+```{r}
+# Filtrar valores no finitos
+trafico1 <- trafico %>%
+  mutate(hour = as.numeric(format(as.POSIXct(date_time, format = "%Y-%m-%d %H:%M:%S"), "%H"))) %>%
+  filter(is.finite(traffic_volume))
+
+# Crear el gráfico y asignarlo a una variable
+p <- ggplot(trafico1, aes(x = hour, y = traffic_volume)) + 
+  geom_line(stat = "summary", fun = mean, color = "steelblue", linewidth = 1.2) + 
+  geom_point(stat = "summary", fun = mean, color = "darkred", size = 2) + 
+  labs(title = "Promedio del Volumen de Tráfico por Hora", 
+       x = "Hora del Día", 
+       y = "Volumen de Tráfico Promedio") + 
+  scale_x_continuous(breaks = seq(0, 23, by = 1)) + 
+  theme_minimal() + 
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),
+    axis.title = element_text(size = 14),
+    axis.text = element_text(size = 12),
+    panel.grid.major = element_line(color = "grey80"),
+    panel.grid.minor = element_blank()
+  )
+p
+# Guardar el gráfico como PDF
+ggsave("promedio_volumen_trafico.pdf", plot = p, width = 8, height = 6)
+
+```
+
+```{r}
+dim(trafico)
+```
+
+```{r}
+# Crear el gráfico con las barras ordenadas de mayor a menor
+grafico <- trafico %>%
+  group_by(holiday) %>%
+  summarise(avg_traffic = mean(traffic_volume, na.rm = TRUE)) %>%
+  arrange(desc(avg_traffic)) %>%  # Ordenar de mayor a menor
+  ggplot(aes(x = reorder(holiday, -avg_traffic), y = avg_traffic, fill = holiday)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = round(avg_traffic, 1)), vjust = -0.5, size = 3) +  # Añadir etiquetas
+  labs(title = "",
+       x = "Días Festivos",
+       y = "Volumen de tráfico promedio") +
+  theme_minimal() +
+  theme(axis.text.x = element_blank(),  # Eliminar las etiquetas del eje x
+        axis.ticks.x = element_blank())
+grafico
+# Guardar el gráfico como PDF
+ggsave("volumen_festivos2.pdf", plot = grafico, width = 11, height = 6)
+
+```
+
+```{r}
+# Calcular las frecuencias y ordenar de mayor a menor
+weather_counts <- trafico %>%
+  count(weather_main) %>%
+  arrange(desc(n)) %>%  # Ordenar de mayor a menor
+  mutate(weather_main = factor(weather_main, levels = weather_main))
+
+# Crear el gráfico con las etiquetas y ordenado
+grafico2 <- ggplot(weather_counts, aes(x = weather_main, y = n, fill = weather_main)) +
+  geom_bar(stat = "identity", fill = "steelblue", color = "black", alpha = 0.7) +
+  geom_text(aes(label = n), vjust = -0.5, size = 4) +  # Añadir etiquetas encima de las barras
+  labs(title = "",
+       x = "Clima",
+       y = "Frecuencia") +
+  theme_minimal() +
+  theme(legend.position = "none")  # Eliminar la leyenda si no es necesaria
+
+grafico2
+# Guardar el gráfico como PDF
+ggsave("distribucion_clima.pdf", plot = grafico2, width = 8, height = 6)
+```
+
+```{r}
+# Desplazar el volumen de tráfico 3 horas hacia adelante
+trafico2 <- trafico_filtrado %>%
+  arrange(date_time) %>%
+  mutate(traffic_volume_future = lead(traffic_volume, n = 2))
+
+numeric_vars_future <- trafico2 %>%
+  select(temp, rain_1h, snow_1h, clouds_all, traffic_volume_future)
+
+# Calcular la matriz de correlación
+cor_matrix_future <- cor(numeric_vars_future, use = "complete.obs")
+cor_matrix_future
+```
+
+```{r}
+# Ajustar el modelo de regresión lineal múltiple
+modelo <- lm(trafico_filtrado$traffic_volume ~ trafico_filtrado$rain_1h+ trafico_filtrado$snow_1h+trafico_filtrado$temp, data = trafico_filtrado)
+
+# Resumen del modelo para ver los coeficientes y valores p
+summary(modelo)
+
+# Realizar el ANOVA
+resultado_anova <- anova(modelo)
+
+# Mostrar los resultados del ANOVA
+print(resultado_anova)
+```
+
+NA:
+
+```{r}
+trafico$date_time <- as.POSIXct(trafico$date_time, format = "%Y-%m-%d %H:%M:%S", tz = "America/Chicago")
+
+# Definir la fecha de inicio y fin en la misma zona horaria
+fecha_inicio <- as.POSIXct("2012-10-02 09:00:00", format = "%Y-%m-%d %H:%M:%S", tz = "America/Chicago")
+fecha_fin <- as.POSIXct("2018-09-30 23:00:00", format = "%Y-%m-%d %H:%M:%S", tz = "America/Chicago")
+
+# Crear una secuencia completa de horas entre la fecha de inicio y fin
+horas_completas <- seq.POSIXt(from = fecha_inicio, to = fecha_fin, by = "hour")
+
+# Encontrar las horas que faltan
+horas_faltantes <- setdiff(horas_completas, trafico$date_time)
+
+# Convertir horas_faltantes a un formato legible
+horas_faltantes_legibles <- as.POSIXct(horas_faltantes, origin = "1970-01-01", tz = "America/Chicago")
+
+# Crear un DataFrame con las horas completas y rellenar datos con NA
+trafico_completo <- data.frame(date_time = horas_completas)
+trafico_completo <- merge(trafico_completo, trafico_clean, by = "date_time", all.x = TRUE)
+
+# Mostrar las horas faltantes, si las hay
+#if (length(horas_faltantes_legibles) > 0) {
+  # Imprimir las horas faltantes en formato POSIXct
+#  print(horas_faltantes_legibles)  # Esto mostrará la fecha y la hora completa
+#} else {
+#  print("No hay horas faltantes")
+#}
+```
+
+
+```{r}
+trafico_completo <- trafico_completo %>%
+  arrange((date_time))
+```
+
+
+### Justificación de julio 2015
+
+```{r}
+horas_faltantes_legibles2 <- data.frame(fecha = horas_faltantes_legibles) %>%
+  filter(year(fecha) > 2014) %>% #  filter(horas_faltantes_legibles > as.Date("2016-05-31"))
+  mutate(
+    ano = year(fecha),
+    mes = month(fecha, label = TRUE, abbr = TRUE)
+  )
+```
+
+```{r}
+resumen <- horas_faltantes_legibles2 %>%
+  group_by(ano, mes) %>%
+  summarise(conteo = n())
+```
+
+```{r}
+ggplot(resumen, aes(x = mes, y = conteo, fill = as.factor(ano))) +
+  geom_col(position = "dodge") +
+  labs(title = "Frecuencia de Fechas por Mes y Año",
+       x = "Mes",
+       y = "Frecuencia",
+       fill = "Año") +
+  theme_minimal()
+```
+
+```{r}
+# Esto no se usa
+trafico_abr_2016 <- trafico_completo %>%
+  filter(date_time > as.Date("2015-07-01"))
+```
+
+
+```{r}
+trafico_jul_2015 <- trafico_completo %>%
+  filter(date_time > as.Date("2015-07-01"))
+```
+
+
+
+
+
+
+
+```{r}
+length(horas_faltantes_legibles[format(horas_faltantes_legibles, "%H:%M:%S") == "01:00:00"])
+length(horas_faltantes_legibles[format(horas_faltantes_legibles, "%H:%M:%S") == "02:00:00"])
+length(horas_faltantes_legibles[format(horas_faltantes_legibles, "%H:%M:%S") == "03:00:00"])
+length(horas_faltantes_legibles[format(horas_faltantes_legibles, "%H:%M:%S") == "04:00:00"])
+length(horas_faltantes_legibles[format(horas_faltantes_legibles, "%H:%M:%S") == "05:00:00"])
+length(horas_faltantes_legibles[format(horas_faltantes_legibles, "%H:%M:%S") == "06:00:00"])
+length(horas_faltantes_legibles[format(horas_faltantes_legibles, "%H:%M:%S") == "07:00:00"])
+length(horas_faltantes_legibles[format(horas_faltantes_legibles, "%H:%M:%S") == "08:00:00"])
+length(horas_faltantes_legibles[format(horas_faltantes_legibles, "%H:%M:%S") == "09:00:00"])
+length(horas_faltantes_legibles[format(horas_faltantes_legibles, "%H:%M:%S") == "10:00:00"])
+length(horas_faltantes_legibles[format(horas_faltantes_legibles, "%H:%M:%S") == "11:00:00"])
+length(horas_faltantes_legibles[format(horas_faltantes_legibles, "%H:%M:%S") == "12:00:00"])
+length(horas_faltantes_legibles[format(horas_faltantes_legibles, "%H:%M:%S") == "13:00:00"])
+length(horas_faltantes_legibles[format(horas_faltantes_legibles, "%H:%M:%S") == "14:00:00"])
+length(horas_faltantes_legibles[format(horas_faltantes_legibles, "%H:%M:%S") == "15:00:00"])
+length(horas_faltantes_legibles[format(horas_faltantes_legibles, "%H:%M:%S") == "16:00:00"])
+length(horas_faltantes_legibles[format(horas_faltantes_legibles, "%H:%M:%S") == "17:00:00"])
+length(horas_faltantes_legibles[format(horas_faltantes_legibles, "%H:%M:%S") == "18:00:00"])
+length(horas_faltantes_legibles[format(horas_faltantes_legibles, "%H:%M:%S") == "19:00:00"])
+length(horas_faltantes_legibles[format(horas_faltantes_legibles, "%H:%M:%S") == "20:00:00"])
+length(horas_faltantes_legibles[format(horas_faltantes_legibles, "%H:%M:%S") == "21:00:00"])
+length(horas_faltantes_legibles[format(horas_faltantes_legibles, "%H:%M:%S") == "22:00:00"])
+length(horas_faltantes_legibles[format(horas_faltantes_legibles, "%H:%M:%S") == "23:00:00"])
+length(horas_faltantes_legibles[format(horas_faltantes_legibles, "%H:%M:%S") == "00:00:00"])
+```
+
+### No usamos impute ts
+```{r}
+library(imputeTS)
+```
+
+```{r}
+#data_interp <- na_interpolation(trafico_jul_2015)
+
+trafico_jul_2015_numeric <- trafico_jul_2015 %>% 
+  select(where(is.numeric))
+
+# Aplicar las imputaciones a las columnas numéricas
+imputacion1 <- na_interpolation(trafico_jul_2015_numeric)
+imputacion2 <- na_ma(trafico_jul_2015_numeric, k = 3)
+imputacion3 <- na_kalman(trafico_jul_2015_numeric)
+
+# Comparar imputaciones
+# Convertir a una lista de series temporales para graficar
+ts.plot(as.ts(trafico_jul_2015_numeric), 
+        as.ts(imputacion1), 
+        as.ts(imputacion2), 
+        as.ts(imputacion3), 
+        col = c("black", "red", "blue", "green"), 
+        ylab = "Valores", 
+        main = "Comparación de imputaciones")
+```
+
+```{r}
+library(mice)
+```
+
+```{r}
+#datitos <- trafico_jul_2015[,c(1,9)]
+#data_mice <- mice(datitos , m = 5, method = 'polyreg', maxit = 5)
+```
+
+```{r}
+data_mice_completed <- complete(data_mice)
+data_mice_completed
+```
+
+```{r}
+calcular_moda <- function(x) {
+  ux <- unique(x)
+  ux[which.max(tabulate(match(x, ux)))]
+}
+
+# Calcular la moda en cada conjunto imputado
+analisis <- with(data_mice, sapply(weather_main, calcular_moda))
+
+# Combinar los resultados para obtener la moda predominante en los conjuntos imputados
+resultados_combinados <- pool(analisis)
+```
+
+```{r}
+datitos2 <- trafico_jul_2015[,c(2,7,8)]
+imput_mice_r <- mice(datitos2, m = 5, method = "polyreg", seed = 123)
+analisis_mice_cat <- with(imput_mice_r, table(rain_1h))  # Por ejemplo, para una variable categórica 'rain_1h'
+
+# Combinar los resultados de los múltiples conjuntos imputados
+resultados_combinados_mc <- pool(analisis_mice_cat)
+
+# Mostrar el resumen combinado
+summary(resultados_combinados_mc)
+```
+
+
+```{r}
+datitos <- trafico_jul_2015[,c(3,4,5,6,9)]
+imput_mice <- mice(datitos, m = 5, method = 'pmm', seed = 123)  # 'm' es el número de conjuntos imputados
+```
+
+```{r}
+# Analizar la incertidumbre en la imputación para una variable
+analisis_mice <- with(imput_mice, lm(traffic_volume ~ 1))
+
+# Combinar los resultados y obtener intervalos de confianza
+resultados_combinados_m <- pool(analisis_mice)
+summary(resultados_combinados_m)
+```
+```{r}
+resumen <- summary(resultados_combinados_m)
+
+# Nivel de confianza (por ejemplo, 95%)
+confianza <- 0.95
+alpha <- 1 - confianza
+
+# Calcular el valor crítico de t
+t_critico <- qt(1 - alpha/2, df = resumen$df)
+
+# Calcular el intervalo de confianza
+limite_inferior <- resumen$estimate - t_critico * resumen$std.error
+limite_superior <- resumen$estimate + t_critico * resumen$std.error
+
+# Mostrar el intervalo de confianza
+intervalo_confianza <- data.frame(Lower = limite_inferior, Upper = limite_superior)
+intervalo_confianza
+```
+```{r}
+variables <- colnames(datitos)  # Suponiendo que `datitos` contiene las variables de interés
+
+intervalos_completos <- data.frame(Variable = character(), Lower = numeric(), Upper = numeric())
+
+# Iterar sobre cada variable
+for (var in variables) {
+  # Realizar el análisis de imputación para cada variable
+  analisis <- with(imput_mice, lm(get(var) ~ 1))
+  
+  # Combinar los resultados usando pool
+  resultados <- pool(analisis)
+  
+  # Resumen de los resultados combinados
+  resumen_resultados <- summary(resultados)
+  
+  # Extraer las estimaciones, errores estándar y grados de libertad
+  estimaciones <- resumen_resultados$estimate
+  errores_estandar <- resumen_resultados$std.error
+  grados_libertad <- resumen_resultados$df
+  
+  # Para cada estimación, calcular el intervalo de confianza
+  for (i in 1:length(estimaciones)) {
+    estimacion <- estimaciones[i]
+    error_estandar <- errores_estandar[i]
+    df <- grados_libertad[i]
+    
+    # Calcular el valor crítico t para el intervalo de confianza (95%)
+    t_critico <- qt(0.975, df)
+    
+    # Calcular los límites del intervalo de confianza
+    limite_inferior <- estimacion - t_critico * error_estandar
+    limite_superior <- estimacion + t_critico * error_estandar
+    
+    # Agregar los resultados al data frame
+    intervalos_completos <- rbind(intervalos_completos, data.frame(Variable = var, Lower = limite_inferior, Upper = limite_superior))
+  }
+}
+
+# Mostrar el data frame con los intervalos de confianza
+intervalos_completos$Upper <- round(intervalos_completos$Upper, 6)
+intervalos_completos
+```
+
+```{r}
+datos_imputados <- complete(imput_mice)
+```
+
+Imputación:
+
+```{r}
+library(missForest)
+library(skimr)
+```
+
+```{r}
+data <- trafico_jul_2015 %>% select(-date_time)
+```
+
+```{r}
+MF <- missForest(data)
+```
+
+```{r}
+completed_data <- missForest(data)$ximp
+completed_data <- cbind(date_time = trafico_jul_2015$date_time, completed_data)
+```
+
+```{r}
+
+completed_data <- completed_data %>%
+  arrange((date_time))
+head(completed_data, n=60L)
+```
+
+```{r}
+skim(completed_data)
+```
+
+```{r}
+# Error de imputación
+nrmse <- MF$OOBerror[1]  # Para variables numéricas
+pfc <- MF$OOBerror[2]    # Para variables categóricas
+```
+
+```{r}
+nrmse
+```
+```{r}
+pfc
+```
+

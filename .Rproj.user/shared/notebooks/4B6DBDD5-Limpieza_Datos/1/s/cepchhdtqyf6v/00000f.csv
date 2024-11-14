@@ -1,0 +1,3 @@
+"0","# Filtrar para eliminar outliers en la precipitación "
+"0","trafico_filtrado <- trafico %>%"
+"0","  filter(rain_1h <= 500)"

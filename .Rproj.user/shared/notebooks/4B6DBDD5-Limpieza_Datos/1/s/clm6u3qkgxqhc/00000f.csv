@@ -1,0 +1,2 @@
+"0","#Se eliminan horas duplicados "
+"0","trafico <- trafico[-which(duplicated(trafico$date_time)), ]"

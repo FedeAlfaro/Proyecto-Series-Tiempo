@@ -1,0 +1,2 @@
+"0","# Mostrar el DataFrame con las horas faltantes como NA"
+"0","head(trafico_completo, n=60L)"

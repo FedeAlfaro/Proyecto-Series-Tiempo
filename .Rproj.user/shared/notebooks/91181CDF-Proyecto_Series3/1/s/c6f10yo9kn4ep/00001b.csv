@@ -1,0 +1,22 @@
+"0","datitos <- trafico_jul_2015[,c(1,9)]"
+"0","data_mice <- mice(datitos , m = 5, method = 'polyreg', maxit = 5)"
+"2","Warning:"
+"2"," Type mismatch for variable(s): traffic_volume
+Imputation method polyreg is for categorical data.
+"
+"1","
+ iter imp variable"
+"1","
+ "
+"1"," "
+"1","1"
+"1"," "
+"1"," "
+"1"," "
+"1","1"
+"1"," "
+"1"," "
+"1","traffic_volume"
+"2","Error in augment(y, ry, x, wy) : 
+  Maximum number of categories (50) exceeded
+"

@@ -1,0 +1,3 @@
+"0","# Guardar el gráfico como PDF"
+"0","ggsave(""volumen_festivos2.pdf"", plot = grafico, width = 11, height = 6)"
+"0",""

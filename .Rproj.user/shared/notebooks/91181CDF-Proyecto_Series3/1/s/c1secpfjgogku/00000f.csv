@@ -1,0 +1,2 @@
+"0","trafico_jul_2015 <- trafico_completo %>%"
+"0","  filter(date_time > as.Date(""2015-07-01""))"

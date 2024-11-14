@@ -1,0 +1,5 @@
+"0","ggplot(trafico, aes(x = clouds_all)) +"
+"0","  geom_histogram(bins = 30, fill = ""orange"", color = ""black"", alpha = 0.7) +"
+"0","  labs(title = ""Distribución de la cobertura de nubes"","
+"0","       x = ""Cobertura de nubes (%)"","
+"0","       y = ""Frecuencia"")"

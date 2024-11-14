@@ -1,0 +1,4 @@
+"0",""
+"0","completed_data <- completed_data %>%"
+"0","  arrange((date_time))"
+"0","head(completed_data, n=60L)"
