@@ -1,3 +1,0 @@
-"0",""
-"0","trafico <- trafico[-which(duplicated(trafico$date_time)), ]"
-"0",""

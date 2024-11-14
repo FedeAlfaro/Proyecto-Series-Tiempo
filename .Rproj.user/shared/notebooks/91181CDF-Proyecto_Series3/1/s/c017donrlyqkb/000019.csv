@@ -1,2 +1,0 @@
-"0","# Guardar el gráfico como PDF"
-"0","ggsave(""distribucion_clima.pdf"", plot = grafico2, width = 8, height = 6)"

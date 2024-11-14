@@ -1,7 +1,0 @@
-"0","ggplot(resumen, aes(x = mes, y = conteo, fill = as.factor(ano))) +"
-"0","  geom_col(position = ""dodge"") +"
-"0","  labs(title = ""Frecuencia de Fechas por Mes y Año"","
-"0","       x = ""Mes"","
-"0","       y = ""Frecuencia"","
-"0","       fill = ""Año"") +"
-"0","  theme_minimal()"
